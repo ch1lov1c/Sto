@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калькулятор СТО — Волгоград</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080c11;--panel:#101823;--panel2:#141e2a;--panel3:#182431;
+  --line:#22303f;--line2:#2c3d50;--txt:#e9f0f8;--muted:#889db5;--dim:#63788f;
+  --acc:#ff7a18;--acc2:#ffc93c;--ok:#33d17a;--bad:#ff5c5c;
+  --shadow:0 18px 40px -18px rgba(0,0,0,.9);
+}
+html,body{height:100%}
+body{
+  margin:0;background:
+    radial-gradient(1100px 520px at 78% -8%, #1b2f45 0%, rgba(27,47,69,0) 62%),
+    radial-gradient(700px 420px at 5% 8%, #2a1a10 0%, rgba(42,26,16,0) 60%),
+    var(--bg);
+  color:var(--txt);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;padding-bottom:0;
+}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.01em}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+::selection{background:rgba(255,122,24,.35)}
+
+/* ---------- header ---------- */
+header{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:16px;
+  padding:14px 22px;border-bottom:1px solid var(--line);
+  background:rgba(8,12,17,.78);backdrop-filter:blur(14px) saturate(140%);
+}
+.logo{display:flex;align-items:center;gap:11px;min-width:0}
+.logo-mark{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;
+  background:linear-gradient(145deg,var(--acc),#e24d00);box-shadow:0 8px 20px -8px rgba(255,122,24,.9);
+  font-weight:900;font-size:15px;color:#1a0d00;letter-spacing:-.5px
+}
+.logo b{display:block;font-size:15px;line-height:1.15;letter-spacing:.2px}
+.logo span{display:block;font-size:11.5px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;
+  background:var(--panel2);border:1px solid var(--line);font-size:12.5px;color:var(--muted);white-space:nowrap
+}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(51,209,122,.15);display:block}
+.linkbtn{padding:7px 12px;border-radius:9px;font-size:13px;color:var(--muted);border:1px solid transparent;transition:.15s}
+.linkbtn:hover{color:var(--txt);background:var(--panel2);border-color:var(--line)}
+
+/* ---------- layout ---------- */
+.app{max-width:1280px;margin:0 auto;padding:22px 22px 120px;display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:22px;align-items:start}
+main{min-width:0;display:flex;flex-direction:column;gap:16px}
+
+/* ---------- stepper ---------- */
+.stepper{display:flex;gap:6px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.step-btn{flex:1;display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:10px;font-size:13px;color:var(--muted);transition:.18s;text-align:left}
+.step-btn .n{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;background:var(--panel3);color:var(--dim);flex:0 0 auto}
+.step-btn:hover{background:var(--panel2);color:var(--txt)}
+.step-btn.active{background:linear-gradient(180deg,#1d2b3b,#18242f);color:var(--txt);box-shadow:inset 0 0 0 1px var(--line2)}
+.step-btn.active .n{background:var(--acc);color:#1a0d00}
+.step-btn.done .n{background:rgba(51,209,122,.18);color:var(--ok)}
+.step-btn span.t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- cards ---------- */
+.card{background:linear-gradient(180deg,var(--panel),#0d141c);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
+.card[hidden]{display:none!important}
+.card-head{display:flex;gap:14px;align-items:flex-start;margin-bottom:20px}
+.card-head .num{
+  width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:0 0 auto;
+  background:rgba(255,122,24,.12);color:var(--acc);font-weight:800;font-size:14px;border:1px solid rgba(255,122,24,.3)
+}
+.card-head h2{font-size:19px}
+.card-head p{color:var(--muted);font-size:13px;margin-top:2px}
+
+.field{margin-bottom:18px}
+.field:last-of-type{margin-bottom:0}
+.field > label{display:block;font-size:12px;letter-spacing:.7px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-bottom:9px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:11px;
+  background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-size:13.5px;transition:.14s
+}
+.chip:hover{border-color:var(--line2);color:var(--txt);transform:translateY(-1px)}
+.chip.on{background:rgba(255,122,24,.13);border-color:rgba(255,122,24,.55);color:#ffd9bd;box-shadow:0 6px 18px -12px var(--acc)}
+.chip .dot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+
+/* brands */
+#brands{display:grid;grid-template-columns:repeat(auto-fill,minmax(126px,1fr));gap:8px;max-height:332px;overflow:auto;padding-right:4px}
+#brands::-webkit-scrollbar{width:8px}
+#brands::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}
+.brand{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:11px;background:var(--panel2);
+  border:1px solid var(--line);font-size:13px;color:var(--muted);text-align:left;transition:.14s
+}
+.brand:hover{color:var(--txt);border-color:var(--line2)}
+.brand.on{background:rgba(255,122,24,.12);border-color:rgba(255,122,24,.55);color:#fff}
+.brand .av{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:11px;font-weight:900;color:#0b0f14;flex:0 0 auto;letter-spacing:-.4px}
+.brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* presets + tabs */
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.preset{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:linear-gradient(180deg,#17222f,#131c26);border:1px dashed var(--line2);font-size:12.5px;color:var(--muted);transition:.15s}
+.preset:hover{color:#ffd9bd;border-color:rgba(255,122,24,.6);border-style:solid}
+.ico{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;vertical-align:-3px}
+.note-ico{width:20px;height:20px;border-radius:50%;background:rgba(255,201,60,.2);color:#ffd76a;display:grid;place-items:center;font-weight:800;font-size:12px;flex:0 0 auto;font-style:normal}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;margin-bottom:6px;scrollbar-width:thin}
+.tabs::-webkit-scrollbar{height:6px}
+.tabs::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+.tab{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:11px;background:var(--panel2);border:1px solid var(--line);font-size:13px;color:var(--muted);white-space:nowrap;transition:.14s;flex:0 0 auto}
+.tab:hover{color:var(--txt)}
+.tab.on{background:linear-gradient(180deg,#22303f,#1a2531);color:#fff;border-color:var(--line2)}
+.tab .cnt{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--acc);color:#1a0d00;font-size:11px;font-weight:800;display:none;place-items:center}
+.tab.has .cnt{display:grid}
+
+/* works */
+.works{display:flex;flex-direction:column;gap:8px}
+.grp-title{font-size:11.5px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);font-weight:800;margin:12px 0 2px}
+.grp-title:first-child{margin-top:0}
+.work{
+  display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;
+  padding:12px 14px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);
+  cursor:pointer;transition:.14s;position:relative
+}
+.work:hover{border-color:var(--line2);background:var(--panel3)}
+.work.on{background:linear-gradient(180deg,rgba(255,122,24,.09),rgba(255,122,24,.04));border-color:rgba(255,122,24,.45)}
+.work input{position:absolute;opacity:0;pointer-events:none}
+.box{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--line2);display:grid;place-items:center;transition:.14s;flex:0 0 auto}
+.work.on .box{background:var(--acc);border-color:var(--acc)}
+.box svg{width:12px;height:12px;stroke:#1a0d00;stroke-width:3;fill:none;opacity:0;transform:scale(.6);transition:.14s}
+.work.on .box svg{opacity:1;transform:scale(1)}
+.w-name{font-size:14px;line-height:1.35}
+.w-meta{font-size:11.5px;color:var(--dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.w-meta .tag{padding:1px 6px;border-radius:5px;background:rgba(51,209,122,.12);color:#7ce0aa;font-size:10.5px;font-weight:700}
+.w-right{display:flex;align-items:center;gap:12px;justify-self:end}
+.w-price{text-align:right;white-space:nowrap}
+.w-price b{font-size:14.5px;letter-spacing:-.2px}
+.w-price s{display:block;font-size:11px;color:var(--dim);text-decoration:none}
+.qty{display:flex;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--line2);border-radius:9px;padding:2px}
+.qty button{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;color:var(--muted);font-size:15px;line-height:1}
+.qty button:hover{background:var(--panel3);color:#fff}
+.qty span{min-width:18px;text-align:center;font-size:13px;font-weight:700}
+
+/* ---------- запчасти под работой ---------- */
+.w-wrap{display:flex;flex-direction:column}
+.work.joined{border-radius:12px 12px 0 0}
+.wparts{
+  margin:0 0 4px;padding:9px 12px 11px;border:1px solid rgba(255,122,24,.28);border-top:0;
+  border-radius:0 0 12px 12px;background:linear-gradient(180deg,rgba(255,122,24,.07),rgba(255,122,24,.02))
+}
+.wparts-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 6px;
+  font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;color:#b98a63;font-weight:800}
+.wparts-h a{font-size:11px;letter-spacing:0;text-transform:none;color:var(--acc);text-decoration:none;font-weight:700;white-space:nowrap}
+.wparts-h a:hover{text-decoration:underline}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 10px;padding:6px 8px;border-radius:8px;
+  text-decoration:none;color:inherit;transition:.14s}
+.prow:hover{background:rgba(255,122,24,.1)}
+.prow .pnm{font-size:12.5px;color:#dfe9f4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow .pnm b{color:var(--acc);font-weight:800}
+.prow .ppr{font-size:12.5px;font-weight:800;color:#ffb066;white-space:nowrap;justify-self:end}
+.prow .ppr i{font-style:normal;opacity:.6;font-size:10px}
+.prow:hover .ppr{color:#fff}
+.prow .pmeta{font-size:10.5px;color:var(--dim);grid-column:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pna{color:var(--muted);font-weight:700}
+
+/* toggles */
+.opt{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:15px 16px;border-radius:13px;background:var(--panel2);border:1px solid var(--line);margin-bottom:10px}
+.opt h4{font-size:14px}
+.opt p{font-size:12.5px;color:var(--muted);margin-top:2px}
+.sw{width:46px;height:26px;border-radius:99px;background:var(--panel);border:1px solid var(--line2);position:relative;transition:.18s;flex:0 0 auto}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--dim);transition:.18s}
+.sw.on{background:rgba(255,122,24,.28);border-color:rgba(255,122,24,.7)}
+.sw.on::after{left:22px;background:var(--acc)}
+
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:rgba(255,201,60,.07);border:1px solid rgba(255,201,60,.22);font-size:12.5px;color:#e5d3a6;line-height:1.5;margin-top:16px}
+.note b{color:#ffd76a}
+
+.nav{display:flex;gap:10px;justify-content:space-between;margin-top:20px}
+.nav.end{justify-content:flex-end}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;transition:.16s;border:1px solid transparent}
+.btn.primary{background:linear-gradient(180deg,#ff8b34,var(--acc));color:#1a0d00;box-shadow:0 12px 26px -14px rgba(255,122,24,.95)}
+.btn.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn.ghost{background:var(--panel2);border-color:var(--line);color:var(--muted)}
+.btn.ghost:hover{color:var(--txt);border-color:var(--line2)}
+.btn.sm{padding:9px 14px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+
+/* ---------- summary aside ---------- */
+aside{position:sticky;top:88px;display:flex;flex-direction:column;gap:14px}
+.sum{background:linear-gradient(180deg,#131d28,#0e161f);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.sum-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line)}
+.sum-head h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.sum-body{padding:16px 18px}
+.car-line{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);margin-bottom:14px}
+.car-line .av{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:900;font-size:12px;color:#0b0f14;flex:0 0 auto}
+.car-line b{display:block;font-size:13.5px;line-height:1.2}
+.car-line small{color:var(--muted);font-size:11.5px}
+.empty{color:var(--dim);font-size:13px;text-align:center;padding:18px 6px;line-height:1.6}
+.sel{display:flex;flex-direction:column;gap:2px;max-height:260px;overflow:auto;margin:0 -6px 12px;padding:0 6px}
+.sel::-webkit-scrollbar{width:6px}
+.sel::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px}
+.sel-row{display:grid;grid-template-columns:minmax(0,1fr) auto 20px;gap:8px;align-items:start;font-size:12.5px;padding:7px 8px;border-radius:8px}
+.sel-row .vl{white-space:nowrap}
+.sel-row:hover{background:var(--panel2)}
+.sel-row .nm{color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
+.sel-row .vl{font-weight:600;white-space:nowrap}
+.sel-row .rm{color:var(--dim);font-size:15px;line-height:1;text-align:center;border-radius:6px}
+.sel-row .rm:hover{color:var(--bad);background:rgba(255,92,92,.1)}
+.totals{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:7px}
+.trow{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.trow b{color:var(--txt);font-weight:600}
+.trow.minus b{color:#6ee7a8}
+.trow.plus b{color:#ffb26b}
+.big{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line2)}
+.big .lbl{font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.big .val{font-size:30px;font-weight:800;letter-spacing:-1.2px;background:linear-gradient(180deg,#fff,#ffb066);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
+.range{font-size:12px;color:var(--dim);text-align:right;margin-top:6px}
+.time{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:12px;padding:9px 11px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
+.sum-foot{padding:0 18px 18px}
+.sum-foot .btn{width:100%}
+
+/* ---------- final ---------- */
+.doc{background:#fff;color:#0d1319;border-radius:16px;padding:26px;font-size:13.5px;line-height:1.5}
+.doc h3{font-size:18px;margin-bottom:4px}
+.doc .doc-sub{color:#5c6b7a;font-size:12.5px;margin-bottom:18px}
+.doc-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:6px 0 14px}
+.doc table{width:100%;border-collapse:collapse;min-width:430px}
+.doc th{text-align:left;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#7a8899;border-bottom:1.5px solid #dfe5ec;padding:7px 6px}
+.doc th:last-child,.doc td:last-child{text-align:right}
+.doc td{padding:8px 6px;border-bottom:1px solid #eef2f6;vertical-align:top}
+.doc tr.tot td{border-bottom:0;font-weight:700;padding-top:10px}
+.doc .doc-h{font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:#5c6b7a;margin:18px 0 6px}
+.doc .doc-h-sub{font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;color:#93a1b1}
+.doc .dlink{color:#0d1319;text-decoration:none;border-bottom:1px solid #cdd7e2}
+.doc .dlink:hover{color:#c2410c;border-color:#c2410c}
+.doc .dmeta{font-size:10.5px;color:#8b98a7}
+.doc .doc-note{font-size:11px;line-height:1.6;color:#7a8899;background:#f7f9fb;border-radius:10px;padding:10px 12px;margin:2px 0 16px}
+.doc .doc-note b{color:#33414f}
+.doc .doc-note a{color:#c2410c;text-decoration:none}
+.doc .doc-totals{margin:4px 0 14px}
+.doc .doc-totals .row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eef2f6;font-weight:700;font-size:13.5px}
+.doc .doc-totals .row:last-child{border-bottom:0}
+.doc .doc-totals .row span{color:#33414f}
+.doc .doc-total{display:flex;justify-content:space-between;align-items:center;background:#0f1720;color:#fff;border-radius:12px;padding:14px 16px;margin-top:6px}
+.doc .doc-total b{font-size:22px;letter-spacing:-.6px}
+.doc .doc-small{font-size:11.5px;color:#7a8899;line-height:1.6;margin-top:14px}
+.doc .doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.doc .doc-cell{background:#f4f7fa;border-radius:10px;padding:10px 12px}
+.doc .doc-cell span{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#7a8899;font-weight:700}
+.doc .doc-cell b{font-size:13px}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+
+/* mobile bar */
+.mbar{display:none}
+@media (max-width:760px){
+  header{gap:10px;padding:10px 14px}
+  .hdr-right .pill{display:none}
+  .logo-mark{width:34px;height:34px;border-radius:10px;font-size:14px}
+  .logo b{font-size:14px}
+  .logo span{font-size:10px}
+}
+@media (max-width:1040px){
+  .app{grid-template-columns:1fr;padding:16px 14px 108px}
+  aside{display:none}
+  header{padding:11px 14px}
+  .card{padding:18px 16px;border-radius:16px}
+  .stepper{overflow:hidden}
+  .step-btn{flex-direction:column;gap:3px;justify-content:center;padding:8px 4px}
+  .step-btn span.t{display:block;font-size:10.5px;max-width:100%}
+  .step-btn .n{width:23px;height:23px;font-size:11.5px}
+  .presets{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+  .presets::-webkit-scrollbar{display:none}
+  .preset{flex:0 0 auto}
+  .mbar{
+    display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;align-items:center;gap:12px;
+    padding:12px 16px;background:rgba(10,15,21,.94);backdrop-filter:blur(16px);border-top:1px solid var(--line)
+  }
+  .mbar .l{flex:1;min-width:0}
+  .mbar small{display:block;font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--dim);font-weight:800}
+  .mbar b{font-size:20px;letter-spacing:-.6px}
+  .work{grid-template-columns:22px minmax(0,1fr);grid-template-areas:"box main" "right right";gap:6px 12px;padding:11px 12px}
+  .w-right{justify-self:stretch;justify-content:flex-end;grid-area:right;padding-left:34px}
+  .w-price{text-align:right}
+  .wparts{padding:8px 10px 10px}
+  .prow .pnm{font-size:12px}
+  .wparts-h{font-size:10px}
+  .tabs{gap:6px}
+  .nav{flex-direction:column-reverse}
+  .nav .btn{width:100%}
+  .doc{padding:16px}
+  .doc table{min-width:0;font-size:12px}
+  .doc th{font-size:10px;padding:6px 3px}
+  .doc td{padding:7px 3px}
+  .doc .doc-h{margin:14px 0 4px;font-size:11px}
+  .doc .dmeta{font-size:9.5px}
+}
+@media print{
+  body{background:#fff}
+  header,aside,.stepper,.mbar,.toolbar,.nav,.card:not(.printcard),.note{display:none!important}
+  .app{display:block;padding:0;max-width:none}
+  .card.printcard{border:0;box-shadow:none;padding:0;background:#fff}
+  .doc{border-radius:0;padding:0}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">34</div>
+    <div>
+      <b>СТО·Калькулятор</b>
+      <span>Волгоград и область</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="pill"><i></i>Работы — Волгоград · Запчасти — Армтек · ноябрь 2026</div>
+    <button class="linkbtn" id="resetBtn">Сбросить</button>
+  </div>
+</header>
+
+<div class="app">
+  <main>
+    <div class="stepper" id="stepper"></div>
+
+    <!-- STEP 1 -->
+    <section class="card" data-step="1">
+      <div class="card-head">
+        <span class="num">1</span>
+        <div>
+          <h2>Ваш автомобиль</h2>
+          <p>Марка, кузов и год влияют на стоимость нормо-часа и запчастей</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Марка</label>
+        <div id="brands"></div>
+      </div>
+
+      <div class="field">
+        <label>Тип кузова</label>
+        <div class="chips" id="bodies"></div>
+      </div>
+
+      <div class="field">
+        <label>Год выпуска</label>
+        <div class="chips" id="years"></div>
+      </div>
+
+      <div class="field">
+        <label>Коробка передач</label>
+        <div class="chips" id="transes"></div>
+      </div>
+
+      <div class="nav end">
+        <button class="btn primary" data-go="2">Выбрать работы →</button>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="card" data-step="2">
+      <div class="card-head">
+        <span class="num">2</span>
+        <div>
+          <h2>Что нужно сделать</h2>
+          <p>Отметьте работы — цена пересчитывается сразу</p>
+        </div>
+      </div>
+
+      <div class="presets" id="presets"></div>
+      <div class="tabs" id="tabs"></div>
+      <div class="works" id="works"></div>
+
+      <div class="nav">
+        <button class="btn ghost" data-go="1">← Назад</button>
+        <button class="btn primary" data-go="3">Далее →</button>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="card" data-step="3">
+      <div class="card-head">
+        <span class="num">3</span>
+        <div>
+          <h2>Дополнительно</h2>
+          <p>Пара уточнений — и получите итоговую смету</p>
+        </div>
+      </div>
+
+      <div class="opt">
+        <div>
+          <h4>Считать запчасти по ценам Армтека</h4>
+          <p>Реальные позиции и цены с витрины armtek.ru — под каждой работой появится список деталей со ссылками</p>
+        </div>
+        <div class="sw on" data-toggle="parts"></div>
+      </div>
+
+      <div class="opt">
+        <div>
+          <h4>Срочный ремонт — в день обращения</h4>
+          <p>Наценка за внеочередной подъём автомобиля на подъёмник: +25% к работам</p>
+        </div>
+        <div class="sw" data-toggle="urgent"></div>
+      </div>
+
+      <div class="opt">
+        <div>
+          <h4>Скидка за объём работ</h4>
+          <p>Применяется автоматически: от 15 000 ₽ — 5%, от 30 000 ₽ — 8%, от 50 000 ₽ — 12%</p>
+        </div>
+        <div style="font-size:13px;font-weight:800;color:var(--ok)" id="discLabel">—</div>
+      </div>
+
+      <div class="note">
+        <div class="note-ico">i</div>
+        <div>Работы — по <b>средним ценам независимых СТО Волгограда</b> (нормо-час ≈ 1 900–3 500 ₽), запчасти — по каталогу <b>Армтек</b>.
+        У официального дилера те же работы обойдутся на <b>40–70% дороже</b>, в небольшом гаражном сервисе — на 10–20% дешевле.
+        Детали, зависящие от модели, уточняются по VIN — ссылка есть у каждой позиции.</div>
+      </div>
+
+      <div class="nav">
+        <button class="btn ghost" data-go="2">← Назад</button>
+        <button class="btn primary" data-go="4">Показать смету →</button>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="card printcard" data-step="4">
+      <div class="card-head">
+        <span class="num">✓</span>
+        <div>
+          <h2>Итоговая смета</h2>
+          <p>Можно распечатать или скопировать и отправить в сервис</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn ghost sm" id="copyBtn"><svg class="ico" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M15 5.5H5.5V15"/></svg> Скопировать смету</button>
+        <button class="btn ghost sm" id="printBtn"><svg class="ico" viewBox="0 0 24 24"><path d="M7 8V3.5h10V8"/><rect x="3.5" y="8" width="17" height="8.5" rx="2"/><path d="M7 16h10v4.5H7z"/></svg> Печать / PDF</button>
+        <button class="btn ghost sm" data-go="2">+ Добавить работы</button>
+      </div>
+      <div id="doc"></div>
+    </section>
+  </main>
+
+  <aside>
+    <div class="sum">
+      <div class="sum-head">
+        <h3>Ваш расчёт</h3>
+        <span class="pill" style="padding:4px 9px;font-size:11px" id="cntPill">0 работ</span>
+      </div>
+      <div class="sum-body">
+        <div class="car-line" id="carLine"></div>
+        <div id="selList"></div>
+        <div class="totals" id="totals"></div>
+        <div class="big">
+          <div class="lbl">Итого</div>
+          <div class="val" id="bigVal">0 ₽</div>
+        </div>
+        <div class="range" id="rangeVal"></div>
+        <div class="time" id="timeVal"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/></svg> —</div>
+      </div>
+      <div class="sum-foot">
+        <button class="btn primary" data-go="4">Показать смету</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="mbar">
+  <div class="l">
+    <small>Итого</small>
+    <b id="mbarVal">0 ₽</b>
+  </div>
+  <button class="btn ghost sm" data-go="2">Работы</button>
+  <button class="btn primary sm" data-go="4">Смета</button>
+</div>
+
+<script>
+/* =========================================================
+   ДАННЫЕ: марки, кузова, годы, КПП
+   ========================================================= */
+const BRANDS = [
+  {id:'lada',   name:'LADA',       w:0.85, p:0.88, c:'#4a9c5c'},
+  {id:'uaz',    name:'УАЗ',        w:0.85, p:0.90, c:'#5f8f42'},
+  {id:'gaz',    name:'ГАЗ',        w:0.88, p:0.92, c:'#4f7aa8'},
+  {id:'kia',    name:'Kia',        w:1.00, p:1.00, c:'#c9463f'},
+  {id:'hyundai',name:'Hyundai',    w:1.00, p:1.00, c:'#3b7bbf'},
+  {id:'chevrolet',name:'Chevrolet',w:0.98, p:0.98, c:'#c9a227'},
+  {id:'renault',name:'Renault',    w:1.00, p:1.02, c:'#e0b52b'},
+  {id:'datsun', name:'Datsun',     w:0.94, p:0.95, c:'#8b6cae'},
+  {id:'toyota', name:'Toyota',     w:1.12, p:1.18, c:'#c0392b'},
+  {id:'vw',     name:'Volkswagen', w:1.15, p:1.20, c:'#2f6fb0'},
+  {id:'skoda',  name:'Skoda',      w:1.08, p:1.10, c:'#2f7d5d'},
+  {id:'nissan', name:'Nissan',     w:1.10, p:1.12, c:'#9aa3ad'},
+  {id:'mazda',  name:'Mazda',      w:1.12, p:1.15, c:'#8c1c28'},
+  {id:'mitsubishi',name:'Mitsubishi',w:1.10,p:1.12, c:'#c0392b'},
+  {id:'ford',   name:'Ford',       w:1.10, p:1.10, c:'#2b5d9e'},
+  {id:'opel',   name:'Opel',       w:1.05, p:1.00, c:'#b8a83a'},
+  {id:'peugeot',name:'Peugeot',    w:1.08, p:1.10, c:'#3d6fb5'},
+  {id:'honda',  name:'Honda',      w:1.12, p:1.15, c:'#b03030'},
+  {id:'subaru', name:'Subaru',     w:1.15, p:1.20, c:'#2e5fa3'},
+  {id:'suzuki', name:'Suzuki',     w:1.05, p:1.05, c:'#2f8fbf'},
+  {id:'haval',  name:'Haval',      w:1.02, p:0.95, c:'#b03030'},
+  {id:'chery',  name:'Chery',      w:1.00, p:0.92, c:'#1f7a4d'},
+  {id:'geely',  name:'Geely',      w:1.02, p:0.95, c:'#2b6fb5'},
+  {id:'exeed',  name:'Exeed',      w:1.05, p:1.00, c:'#20456e'},
+  {id:'changan',name:'Changan',    w:1.00, p:0.92, c:'#2a5fa8'},
+  {id:'omoda',  name:'Omoda',      w:1.02, p:0.95, c:'#3b3f8f'},
+  {id:'jetour', name:'Jetour',     w:1.00, p:0.95, c:'#1f5f8f'},
+  {id:'bmw',    name:'BMW',        w:1.45, p:1.80, c:'#1c6fb8'},
+  {id:'mercedes',name:'Mercedes-Benz',w:1.45,p:1.85,c:'#8d9298'},
+  {id:'audi',   name:'Audi',       w:1.42, p:1.75, c:'#b0342f'},
+  {id:'volvo',  name:'Volvo',      w:1.35, p:1.60, c:'#2b5f8f'},
+  {id:'landrover',name:'Land Rover',w:1.55,p:2.00,c:'#3f6b45'},
+  {id:'lexus',  name:'Lexus',      w:1.38, p:1.70, c:'#8f8f8f'},
+  {id:'porsche',name:'Porsche',    w:1.70, p:2.30, c:'#9a7b2f'},
+  {id:'other',  name:'Другая',     w:1.05, p:1.05, c:'#5a6b7d'}
+];
+
+const BODIES = [
+  {id:'hatch',  name:'Хэтчбек',    w:0.97},
+  {id:'sedan',  name:'Седан',      w:1.00},
+  {id:'wagon',  name:'Универсал',  w:1.03},
+  {id:'cross',  name:'Кроссовер',  w:1.08},
+  {id:'suv',    name:'Внедорожник',w:1.18},
+  {id:'minivan',name:'Минивэн',    w:1.12},
+  {id:'pickup', name:'Пикап',      w:1.15}
+];
+
+const YEARS = [
+  {id:'new', name:'2021 и новее', w:1.00},
+  {id:'y16', name:'2016–2020',    w:1.02},
+  {id:'y10', name:'2010–2015',    w:1.07},
+  {id:'old', name:'до 2010',      w:1.14}
+];
+
+const TRANSES = [
+  {id:'at',  name:'АКПП'},
+  {id:'mt',  name:'МКПП'},
+  {id:'cvt', name:'Вариатор'},
+  {id:'amt', name:'Робот / DSG'}
+];
+
+/* =========================================================
+   ДАННЫЕ: категории и работы
+   p — средняя цена работ по Волгограду (₽)
+   d — средняя стоимость запчастей/расходников (₽)
+   h — норма-часы
+   a — для каких КПП актуально (если не указано — для всех)
+   ========================================================= */
+const ICONS = {
+  to:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 3.5s5.5 6 5.5 9.5a5.5 5.5 0 0 1-11 0C6.5 9.5 12 3.5 12 3.5z"/></svg>',
+  brakes:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v3M12 17.5v3M3.5 12h3M17.5 12h3"/></svg>',
+  susp:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M12 6l-4 3 8 3-8 3 4 3"/></svg>',
+  engine:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 11V9h3V7h4v2h2.5l2.5 2.5H20v6h-2.5L15 20H6l-2-2v-7z"/><path d="M9 4h4"/></svg>',
+  trans:'<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3.3M12 17.7V21M3 12h3.3M17.7 12H21M5.6 5.6l2.4 2.4M16 16l2.4 2.4M18.4 5.6L16 8M8 16l-2.4 2.4"/></svg>',
+  elec:'<svg class="ico" viewBox="0 0 24 24"><path d="M13 2.5 4.5 14H11l-1 7.5L19.5 10H13l0-7.5z"/></svg>',
+  ac:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M20.2 7.2 3.8 16.8"/></svg>',
+  body:'<svg class="ico" viewBox="0 0 24 24"><path d="M3 15.5 5 9.5h14l2 6v3h-2.5M3 18.5v-3"/><circle cx="7.5" cy="17" r="1.9"/><circle cx="16.5" cy="17" r="1.9"/><path d="M9.5 11.5h5"/></svg>'
+};
+
+const CATS = [
+  {id:'to',     name:'ТО и жидкости', icon:ICONS.to},
+  {id:'brakes', name:'Тормоза',       icon:ICONS.brakes},
+  {id:'susp',   name:'Подвеска и рулевое', icon:ICONS.susp},
+  {id:'engine', name:'Двигатель',     icon:ICONS.engine},
+  {id:'trans',  name:'Трансмиссия',   icon:ICONS.trans},
+  {id:'elec',   name:'Электрика и диагностика', icon:ICONS.elec},
+  {id:'ac',     name:'Кондиционер',   icon:ICONS.ac},
+  {id:'body',   name:'Кузов, стекло, шины', icon:ICONS.body}
+];
+
+const WORKS = [
+  /* ---- ТО и жидкости ---- */
+  {id:'oil',      cat:'to', name:'Замена моторного масла и масляного фильтра', p:900,  d:3200, h:0.6},
+  {id:'to-full',  cat:'to', name:'Комплексное ТО «под ключ» (масло + фильтры + осмотр)', p:2300, d:6200, h:1.6},
+  {id:'airf',     cat:'to', name:'Замена воздушного фильтра', p:400, d:800, h:0.2},
+  {id:'cabf',     cat:'to', name:'Замена салонного фильтра', p:500, d:1000, h:0.3},
+  {id:'fuelf',    cat:'to', name:'Замена топливного фильтра (выносной)', p:1000, d:1600, h:0.8},
+  {id:'fuelf-t',  cat:'to', name:'Замена топливного фильтра в баке (снятие бака)', p:2600, d:2500, h:2.0},
+  {id:'sparks',   cat:'to', name:'Замена свечей зажигания (4 шт.)', p:1200, d:1700, h:0.8},
+  {id:'coolant',  cat:'to', name:'Замена антифриза / охлаждающей жидкости', p:1400, d:1300, h:0.7},
+  {id:'brfluid',  cat:'to', name:'Замена тормозной жидкости с прокачкой', p:1300, d:700, h:0.7},
+  {id:'psfluid',  cat:'to', name:'Замена жидкости ГУР', p:1100, d:900, h:0.6},
+  {id:'atf-part', cat:'to', name:'Замена масла в АКПП частичная (со снятием поддона)', p:2900, d:6500, h:1.5, a:['at','amt']},
+  {id:'atf-full', cat:'to', name:'Аппаратная замена масла в АКПП (полный объём)', p:3400, d:9500, h:1.5, a:['at','amt']},
+  {id:'cvtf',     cat:'to', name:'Замена масла в вариаторе (CVT)', p:2700, d:7500, h:1.5, a:['cvt']},
+  {id:'mtf',      cat:'to', name:'Замена масла в МКПП', p:1000, d:2500, h:0.7, a:['mt','amt']},
+  {id:'difff',    cat:'to', name:'Замена масла в редукторе / раздатке', p:1000, d:1900, h:0.8},
+  {id:'timing',   cat:'to', name:'Замена ремня ГРМ с роликами', p:4500, d:5500, h:3.5},
+  {id:'chain',    cat:'to', name:'Замена цепи ГРМ', p:9000, d:9000, h:5.0},
+  {id:'belt',     cat:'to', name:'Замена ремня навесного оборудования', p:900, d:1600, h:0.6},
+
+  /* ---- Тормоза ---- */
+  {id:'pads-f',   cat:'brakes', name:'Замена передних тормозных колодок (ось)', p:1100, d:3200, h:0.8},
+  {id:'pads-rd',  cat:'brakes', name:'Замена задних колодок, дисковые (ось)', p:1200, d:2800, h:0.9},
+  {id:'pads-rb',  cat:'brakes', name:'Замена задних колодок, барабанные (ось)', p:1600, d:3500, h:1.2},
+  {id:'discs-f',  cat:'brakes', name:'Замена тормозных дисков, передняя ось', p:2000, d:7000, h:1.5},
+  {id:'discs-r',  cat:'brakes', name:'Замена тормозных дисков, задняя ось', p:1900, d:6000, h:1.5},
+  {id:'cal-serv', cat:'brakes', name:'Обслуживание суппортов (чистка, смазка, ревизия)', p:1200, d:800, h:1.0},
+  {id:'cal-rep',  cat:'brakes', name:'Замена тормозного суппорта (1 шт.)', p:1500, d:6500, h:1.0, qty:1},
+  {id:'hose',     cat:'brakes', name:'Замена тормозного шланга (1 шт.)', p:700, d:900, h:0.6, qty:1},
+  {id:'gtc',      cat:'brakes', name:'Замена главного тормозного цилиндра', p:1900, d:4000, h:1.5},
+  {id:'booster',  cat:'brakes', name:'Замена вакуумного усилителя тормозов', p:3000, d:8000, h:2.5},
+  {id:'hand-cab', cat:'brakes', name:'Замена троса ручного тормоза', p:1300, d:1500, h:1.2},
+  {id:'bleed',    cat:'brakes', name:'Прокачка тормозной системы', p:900, d:0, h:0.6},
+  {id:'brpipe',   cat:'brakes', name:'Замена тормозной трубки (1 шт.)', p:900, d:800, h:0.8, qty:1},
+  {id:'abs-diag', cat:'brakes', name:'Диагностика ABS / ESP', p:1200, d:0, h:0.8},
+
+  /* ---- Подвеска и рулевое ---- */
+  {id:'susp-diag',cat:'susp', name:'Диагностика подвески на подъёмнике', p:700, d:0, h:0.5, free:1},
+  {id:'shock',    cat:'susp', name:'Замена амортизатора (1 шт.)', p:1300, d:4500, h:1.2, qty:1},
+  {id:'spring',   cat:'susp', name:'Замена пружины (1 шт.)', p:1400, d:3500, h:1.3, qty:1},
+  {id:'ball',     cat:'susp', name:'Замена шаровой опоры (1 шт.)', p:1100, d:1800, h:1.2, qty:1},
+  {id:'lever',    cat:'susp', name:'Замена рычага подвески (1 шт.)', p:1500, d:4500, h:1.5, qty:1},
+  {id:'silent',   cat:'susp', name:'Замена сайлентблока (1 шт.)', p:900, d:900, h:1.0, qty:1},
+  {id:'stab',     cat:'susp', name:'Замена стойки / втулки стабилизатора (1 шт.)', p:500, d:900, h:0.5, qty:1},
+  {id:'hub',      cat:'susp', name:'Замена ступичного подшипника (1 шт.)', p:1800, d:2500, h:1.6, qty:1},
+  {id:'tie',      cat:'susp', name:'Замена рулевой тяги / наконечника (1 шт.)', p:1000, d:1500, h:1.0, qty:1},
+  {id:'rack-rep', cat:'susp', name:'Ремонт рулевой рейки (снятие / установка)', p:8000, d:6000, h:5.0},
+  {id:'rack-new', cat:'susp', name:'Замена рулевой рейки', p:5500, d:18000, h:4.0},
+  {id:'mount',    cat:'susp', name:'Замена опоры двигателя (1 шт.)', p:900, d:3500, h:0.9, qty:1},
+  {id:'align1',   cat:'susp', name:'Сход-развал 3D (одна ось)', p:2200, d:0, h:0.8},
+  {id:'align2',   cat:'susp', name:'Сход-развал 3D (две оси)', p:3100, d:0, h:1.2},
+
+  /* ---- Двигатель ---- */
+  {id:'diag-eng', cat:'engine', name:'Компьютерная диагностика двигателя', p:1200, d:0, h:0.8},
+  {id:'vcg',      cat:'engine', name:'Замена прокладки клапанной крышки', p:1200, d:900, h:1.2},
+  {id:'seal-f',   cat:'engine', name:'Замена переднего сальника коленвала', p:4500, d:900, h:3.0},
+  {id:'pump',     cat:'engine', name:'Замена водяного насоса (помпы)', p:3200, d:4500, h:2.8},
+  {id:'thermo',   cat:'engine', name:'Замена термостата', p:1600, d:1800, h:1.2},
+  {id:'radiator', cat:'engine', name:'Замена радиатора охлаждения', p:3500, d:7500, h:2.5},
+  {id:'alt',      cat:'engine', name:'Замена генератора', p:1500, d:9000, h:1.2},
+  {id:'starter',  cat:'engine', name:'Замена стартера', p:1500, d:8000, h:1.2},
+  {id:'coil',     cat:'engine', name:'Замена катушки зажигания (1 шт.)', p:400, d:2500, h:0.4, qty:1},
+  {id:'injector', cat:'engine', name:'Промывка форсунок на стенде (4 шт.)', p:3000, d:1500, h:1.5},
+  {id:'throttle', cat:'engine', name:'Чистка дроссельной заслонки', p:1400, d:500, h:0.8},
+  {id:'hcg',      cat:'engine', name:'Замена прокладки ГБЦ', p:12000, d:12000, h:8.0},
+  {id:'vss',      cat:'engine', name:'Замена маслосъёмных колпачков', p:8000, d:4000, h:6.0},
+  {id:'overhaul', cat:'engine', name:'Переборка двигателя (работы)', p:30000, d:60000, h:20},
+
+  /* ---- Трансмиссия ---- */
+  {id:'clutch',   cat:'trans', name:'Замена сцепления (комплект)', p:6000, d:12000, h:4.5, a:['mt','amt']},
+  {id:'shrus',    cat:'trans', name:'Замена ШРУСа (1 шт.)', p:2000, d:3500, h:1.5, qty:1},
+  {id:'shrus-b',  cat:'trans', name:'Замена пыльника ШРУСа (1 шт.)', p:1500, d:1200, h:1.3, qty:1},
+  {id:'drive',    cat:'trans', name:'Замена привода колеса (1 шт.)', p:2500, d:9000, h:1.5, qty:1},
+  {id:'gb-seal',  cat:'trans', name:'Замена сальника КПП', p:1800, d:700, h:1.5},
+  {id:'mt-rep',   cat:'trans', name:'Ремонт МКПП (снятие / установка + переборка)', p:7000, d:15000, h:5.0, a:['mt']},
+  {id:'at-diag',  cat:'trans', name:'Диагностика АКПП / вариатора', p:1500, d:0, h:1.0},
+  {id:'at-rep',   cat:'trans', name:'Ремонт АКПП (работы, без стоимости деталей)', p:25000, d:60000, h:10, a:['at']},
+  {id:'cvt-rep',  cat:'trans', name:'Ремонт вариатора (работы, без деталей)', p:28000, d:65000, h:11, a:['cvt']},
+
+  /* ---- Электрика ---- */
+  {id:'diag-full',cat:'elec', name:'Комплексная диагностика (ДВС, ABS, Airbag, ходовая)', p:3000, d:0, h:1.5},
+  {id:'obd',      cat:'elec', name:'Чтение и сброс кодов ошибок', p:500, d:0, h:0.3},
+  {id:'sensor',   cat:'elec', name:'Замена датчика (ДК, ДПКВ, ДПРВ и др.)', p:1200, d:3500, h:1.0, qty:1},
+  {id:'wiring',   cat:'elec', name:'Ремонт электропроводки (1 нормо-час)', p:1500, d:500, h:1.0, qty:1},
+  {id:'alarm',    cat:'elec', name:'Установка сигнализации с автозапуском', p:6000, d:12000, h:4.0},
+  {id:'lamp',     cat:'elec', name:'Замена лампы освещения', p:400, d:500, h:0.3, qty:1},
+  {id:'hl-adj',   cat:'elec', name:'Регулировка света фар', p:800, d:0, h:0.5},
+  {id:'battery',  cat:'elec', name:'Замена аккумулятора', p:400, d:8000, h:0.3},
+  {id:'alt-rep',  cat:'elec', name:'Ремонт стартера / генератора (снятие, ремонт, установка)', p:4500, d:6000, h:2.0},
+
+  /* ---- Кондиционер ---- */
+  {id:'ac-diag',  cat:'ac', name:'Диагностика кондиционера (поиск утечки)', p:1000, d:0, h:0.6},
+  {id:'ac-fill',  cat:'ac', name:'Заправка кондиционера R134a (вакуум + фреон)', p:3000, d:1500, h:1.0},
+  {id:'ac-clean', cat:'ac', name:'Антибактериальная чистка испарителя', p:1900, d:800, h:1.2},
+  {id:'ac-comp',  cat:'ac', name:'Замена компрессора кондиционера', p:5500, d:25000, h:3.0},
+  {id:'ac-rad',   cat:'ac', name:'Замена радиатора кондиционера', p:4500, d:9000, h:3.0},
+
+  /* ---- Кузов, стекло, шины ---- */
+  {id:'tire-15',  cat:'body', name:'Шиномонтаж комплект R13–R15 (4 колеса)', p:1800, d:0, h:1.2},
+  {id:'tire-17',  cat:'body', name:'Шиномонтаж комплект R16–R17 (4 колеса)', p:2200, d:0, h:1.4},
+  {id:'tire-19',  cat:'body', name:'Шиномонтаж комплект R18 и выше (4 колеса)', p:2900, d:0, h:1.6},
+  {id:'balance',  cat:'body', name:'Балансировка колеса', p:350, d:0, h:0.25, qty:1},
+  {id:'puncture', cat:'body', name:'Ремонт прокола / грыжи', p:600, d:300, h:0.4, qty:1},
+  {id:'glass',    cat:'body', name:'Замена лобового стекла (работа)', p:2500, d:15000, h:2.0},
+  {id:'polish',   cat:'body', name:'Полировка кузова (абразивная)', p:8000, d:2000, h:6.0},
+  {id:'hl-pol',   cat:'body', name:'Полировка фар (пара)', p:2500, d:800, h:1.5},
+  {id:'tint',     cat:'body', name:'Тонировка стёкол (комплект)', p:6000, d:3000, h:4.0},
+  {id:'dent',     cat:'body', name:'Рихтовка одного элемента', p:5000, d:2000, h:4.0},
+  {id:'paint',    cat:'body', name:'Покраска одного элемента', p:8000, d:6000, h:6.0},
+  {id:'engine-wash',cat:'body', name:'Мойка двигателя', p:800, d:400, h:0.7}
+];
+
+const PRESETS = [
+  {name:'ТО-1', ids:['oil','airf','cabf']},
+  {name:'ТО-2 расширенное', ids:['oil','airf','cabf','sparks','brfluid']},
+  {name:'Колодки по кругу', ids:['pads-f','pads-rd']},
+  {name:'Тормоза «под ключ»', ids:['pads-f','discs-f','brfluid','cal-serv']},
+  {name:'Диагностика', ids:['susp-diag','diag-eng']},
+  {name:'Кондиционер', ids:['ac-diag','ac-fill']},
+  {name:'Шиномонтаж', ids:['tire-17']}
+];
+
+/* =========================================================
+   КАТАЛОГ ЗАПЧАСТЕЙ — Армтек (armtek.ru), витрина, ноябрь 2026
+   p — цена позиции в Армтеке (₽), u — путь карточки товара,
+   fit: uni — подходит любому авто, car — подбор по марке/VIN
+   ========================================================= */
+const ARMTEK_BASE = 'https://armtek.ru';
+const PARTS = {
+  oil4:{t:'Моторное масло 5W-40 синтетика, 4,5 л', b:'FURO OPTI', a:'5W40FR005', p:2882, fit:'uni', u:'motornoe-maslo-furo-opti-5w40fr005-5w-40-sinteticheskoe-45-l-56487280', q:'моторное масло 5W-40 4 л'},
+  oilf:{t:'Фильтр масляный', b:'STELLOX', a:'20-50502-SX', p:273, fit:'car', u:'filtr-maslyanyy-stellox-20-50502-sx-opelastravectracorsazafira-10-18-04-9247844', q:'фильтр масляный'},
+  airf:{t:'Фильтр воздушный', b:'ZENTPARTS', a:'Z32700', p:593, fit:'car', u:'filtr-vozdushnyy-zentparts-z32700-56742704', q:'фильтр воздушный'},
+  cabf:{t:'Фильтр салона', b:'STELLOX', a:'87-11877-SX', p:123, fit:'car', u:'salonnyy-filtr-stellox-87-11877-sx-73163447', q:'фильтр салона'},
+  fuelf:{t:'Фильтр топливный', b:'STELLOX', a:'21-10173-SX', p:110, fit:'car', u:'toplivnyy-filtr-stellox-21-10173-sx-82221021', q:'фильтр топливный'},
+  spark:{t:'Свеча зажигания (1 шт.)', b:'СТАРТВОЛЬТ', a:'VSP 0017', p:480, fit:'car', u:'svecha-zajiganiya-startvolt-vsp-0017-64465133', q:'свечи зажигания'},
+  coolant:{t:'Антифриз G12 готовый, 5 л', b:'CHEMIPRO', a:'CH085', p:1078, fit:'uni', u:'antifriz-chemipro-ch085-rozovyy-gotovyy-g12-5-l-56-kg-50454033', q:'антифриз G12 5 л'},
+  brfluid:{t:'Тормозная жидкость DOT-4, 1 л', b:'COMMA', a:'BF41L', p:1075, fit:'uni', u:'tormoznaya-jidkost-comma-bf41l-dot-4-1-l-9410700', q:'тормозная жидкость DOT-4'},
+  psfluid:{t:'Масло для ГУР, 1 л', b:'TOTACHI', a:'22601', p:750, fit:'uni', u:'maslo-dlya-gur-totachi-22601-mineralnoe-1-l-44395983', q:'масло для ГУР 1 л'},
+  atf:{t:'Масло для АКПП, 4 л', b:'AREOL', a:'AR197', p:3111, fit:'uni', u:'maslo-dlya-avtomaticheskoy-kpp-i-gur-areol-ar197-sinteticheskoe-4-l-76418503', q:'масло ATF для АКПП 4 л'},
+  mtf:{t:'Трансмиссионное масло 75W-90, 4 л', b:'AREOL', a:'75W90AR211', p:3882, fit:'uni', u:'transmissionnoe-maslo-areol-mtf-75w90ar211-75w-90-polusinteticheskoe-4-l-76419517', q:'масло трансмиссионное 75W-90 4 л'},
+  gearoil:{t:'Масло в редуктор 75W-90, 1 л', b:'AREOL', a:'75W90AR083', p:1263, fit:'uni', u:'transmissionnoe-maslo-areol-gearlube-ep-75w90ar083-75w-90-polusinteticheskoe-1-l-18660550', q:'масло трансмиссионное 75W-90 1 л'},
+  timing:{t:'Комплект ГРМ (ремень + ролики)', b:'TRIALLI', a:'GD 708', p:1575, fit:'car', u:'komplekt-grm-trialli-gd-708-19-mm-13244907', q:'ремень ГРМ комплект с роликами'},
+  chain:{t:'Цепь ГРМ', b:'DID', a:'SCR0412SV134LE', p:5469, fit:'car', u:'cep-grm-153-scr0412sv134le-did-41627743', q:'цепь ГРМ комплект'},
+  belt:{t:'Ремень поликлиновый', b:'STELLOX', a:'93-00825-SX', p:134, fit:'car', u:'remen-poliklinovyy-stellox-93-00825-sx-pk--825-mm-49901725', q:'ремень поликлиновой'},
+  padsf:{t:'Колодки тормозные передние (ось)', b:'STELLOX', a:'1124 000B-SX', p:425, fit:'car', u:'tormoznye-kolodki-diskovye-perednyaya-os-stellox-1124-000b-sx-5884925', q:'колодки тормозные передние'},
+  padsrd:{t:'Колодки задние дисковые (ось)', b:'ZENTPARTS', a:'Z07795', p:1124, fit:'car', u:'tormoznye-kolodki-diskovye-zadnyaya-os-zentparts-z07795-72131045', q:'колодки тормозные задние'},
+  padsrb:{t:'Колодки задние барабанные (ось)', b:'STELLOX', a:'201 100-SX', p:490, fit:'car', u:'tormoznye-kolodki-barabannye-stellox-201-100-sx-3475283', q:'колодки барабанные'},
+  discsf:{t:'Тормозной диск передний (1 шт.)', b:'STELLOX', a:'6021-0061V-SX', p:3350, fit:'car', u:'tormoznoy-disk-stellox-6021-0061v-sx-ventiliruemyy--perednyaya-os-59897070', q:'тормозной диск передний'},
+  discsr:{t:'Тормозной диск задний (1 шт.)', b:'STELLOX', a:'6021-0096-SX', p:1498, fit:'car', u:'tormoznoy-disk-stellox-6021-0096-sx-polnyy--zadnyaya-os-41797032', q:'тормозной диск задний'},
+  calserv:{t:'Смазка для суппортов, 5 г', b:'LIQUI MOLY', a:'21119', p:249, fit:'uni', u:'smazka-liqui-moly-21119-0005-kg-32578061', q:'смазка для суппортов'},
+  caliper:{t:'Суппорт тормозной (1 шт.)', b:'STELLOX', a:'05-90742-SX', p:2180, fit:'car', u:'support-tormoznoy-stellox-05-90742-sx-68188772', q:'суппорт тормозной'},
+  hose:{t:'Шланг тормозной (1 шт.)', b:'SAT', a:'ST-95022604', p:281, fit:'car', u:'shlang-tormoznoy-zadniy-chevrolet-aveo-t300-lhrh-st-95022604-sat-22333150', q:'шланг тормозной'},
+  booster:{t:'Вакуумный усилитель тормозов', b:'TRIALLI', a:'VA 558', p:3666, fit:'car', u:'vakuumnyy-usilitel-tormozov-lada-21082109210992113-21152121-2131-va-558-trialli-14736200', q:'вакуумный усилитель тормозов'},
+  handcab:{t:'Трос ручного тормоза', b:'STELLOX', a:'29-98760-SX', p:110, fit:'car', u:'tros-ruchnogo-tormoza-stellox-29-98760-sx-szadi--1-sht-21718076', q:'трос стояночного тормоза'},
+  shock:{t:'Амортизатор (1 шт.)', b:'ZENTPARTS', a:'Z00220', p:2678, fit:'car', u:'amortizator-gazomaslyanyy-zentparts-z00220-zadnyaya-os-36555082', q:'амортизатор'},
+  spring:{t:'Пружина подвески (1 шт.)', b:'ZENTPARTS', a:'Z37900', p:2542, fit:'car', u:'prujina-podveski-zentparts-z37900-1-sht-58122055', q:'пружина подвески'},
+  ball:{t:'Шаровая опора (1 шт.)', b:'FEBEST', a:'MBJB-516', p:212, fit:'car', u:'sharovaya-opora-febest-mbjb-516-8424290', q:'шаровая опора'},
+  lever:{t:'Рычаг подвески (1 шт.)', b:'ZENTPARTS', a:'Z25008', p:6997, fit:'car', u:'rychag-podveski-zentparts-z25008-perednyaya-os-50212638', q:'рычаг подвески'},
+  silent:{t:'Сайлентблок (1 шт.)', b:'ZENTPARTS', a:'Z25958', p:2932, fit:'car', u:'saylentblok-rychaga-zentparts-z25958-perednyaya-os--1-sht-51340126', q:'сайлентблок'},
+  stab:{t:'Тяга стабилизатора (1 шт.)', b:'ZENTPARTS', a:'Z29179', p:1031, fit:'car', u:'tyaga-stabilizatora-zentparts-z29179-36073597', q:'стойка стабилизатора'},
+  hub:{t:'Подшипник ступицы, комплект', b:'FEBEST', a:'2182-CDHF', p:3387, fit:'car', u:'k-kt-podshipnika-stupicy-ford-focus-11-2182-cdhf-febest-10711956', q:'подшипник ступицы'},
+  tie:{t:'Рулевой наконечник (1 шт.)', b:'ZENTPARTS', a:'Z10834', p:712, fit:'car', u:'rulevoy-nakonechnik-zentparts-z10834-perednyaya-os-35926975', q:'рулевой наконечник'},
+  rack:{t:'Рулевая рейка', b:'STELLOX', a:'00-35005-SX', p:3142, fit:'car', u:'rulevaya-reyka-stellox-00-35005-sx-97018', q:'рулевая рейка'},
+  mount:{t:'Опора двигателя (1 шт.)', b:'ZENTPARTS', a:'Z13280', p:1688, fit:'car', u:'podushka-krepleniya-dvigatelya-zentparts-z13280-36045983', q:'опора двигателя'},
+  vcg:{t:'Прокладка клапанной крышки', b:'STELLOX', a:'81-11306-SX', p:92, fit:'car', u:'prokladka-klapannoy-kryshki-stellox-81-11306-sx-1-sht-5714315', q:'прокладка клапанной крышки'},
+  pump:{t:'Насос водяной (помпа)', b:'STELLOX', a:'4500-0122-SX', p:526, fit:'car', u:'nasos-vodyanoy-pompa-stellox-4500-0122-sx-160550', q:'насос водяной помпа'},
+  thermo:{t:'Термостат', b:'FAST', a:'FT58040', p:3664, fit:'car', u:'termostat-sistemy-ohlajdeniya-fast-ft58040-59910144', q:'термостат охлаждающей жидкости'},
+  radiator:{t:'Радиатор охлаждения', b:'ZENTPARTS', a:'Z20039', p:34926, fit:'car', u:'radiator-sistemy-ohlajdeniya-dvigatelya-zentparts-z20039-36554707', q:'радиатор охлаждения'},
+  alt:{t:'Генератор', b:'STELLOX', a:'06-10450-SX', p:12531, fit:'car', u:'generator-stellox-06-10450-sx-42019508', q:'генератор'},
+  starter:{t:'Стартер', b:'STELLOX', a:'06-10326-SX', p:3739, fit:'car', u:'starter-stellox-06-10326-sx-63927529', q:'стартер'},
+  coil:{t:'Катушка зажигания (1 шт.)', b:'STELLOX', a:'61-00278-SX', p:315, fit:'car', u:'katushka-zajiganiya-stellox-61-00278-sx-34731057', q:'катушка зажигания'},
+  hcg:{t:'Прокладка ГБЦ', b:'STELLOX', a:'11-24109-SX', p:214, fit:'car', u:'prokladka-gbc-stellox-11-24109-sx-78131522', q:'прокладка ГБЦ'},
+  clutch:{t:'Комплект сцепления с выжимным', b:'STELLOX', a:'07-01154-SX', p:6722, fit:'car', u:'komplekt-scepleniya-stellox-07-01154-sx-s-vyjimnym-podshipnikom-9461459', q:'комплект сцепления'},
+  shrus:{t:'ШРУС наружный (1 шт.)', b:'STELLOX', a:'150 0012-SX', p:778, fit:'car', u:'shrus-narujnyy-stellox-150-0012-sx-perednyaya-os-sleva--perednyaya-os-sprava--135-mm-155422', q:'ШРУС наружный'},
+  drive:{t:'Привод (полуось)', b:'FEBEST', a:'0212-P10LH', p:1664, fit:'car', u:'poluos-levaya-22x425x22-nissan-primera-p11-1996-2001-0212-p10lh-febest-8422808', q:'привод полуось'},
+  gbseal:{t:'Сальник полуоси / КПП', b:'ZENTPARTS', a:'Z27045', p:144, fit:'car', u:'salnik-poluosi-zadniy-42x55x7-toyota-carinacorollacorsa-80-z27045-zentparts-73310341', q:'сальник КПП'},
+  battery:{t:'Аккумулятор 60 Ач, 510 А', b:'FIREBALL', a:'560108020', p:6547, fit:'uni', u:'akkumulyator-dlya-legkovyh-avto-fireball-560108020-60-ach-510-a-242x175x190-mm-0---obratnaya-44436876', q:'аккумулятор 60 Ач'},
+  lamp:{t:'Лампа галогенная H7 12 В 55 Вт', b:'VOLTON', a:'VLT1411U', p:155, fit:'uni', u:'avtolampa-galogennaya-px26d-volton-vlt1411u-h7-12-16957327', q:'лампа H7 галогенная'},
+  acclean:{t:'Очиститель кондиционера пенный, 150 мл', b:'WURTH', a:'1893764550431', p:511, fit:'uni', u:'wurth-1893764550431-150-ml-84984417', q:'очиститель кондиционера'},
+  polish:{t:'Полироль абразивный, 180 г', b:'SOFT99', a:'09054', p:989, fit:'uni', u:'polirol-abrazivnyy-melkiy-micro-rubbing-compound-dlya-temnyh-180gr-09054-soft99-17061903', q:'полироль абразивный'},
+  throttle:{t:'Очиститель дросселя, 400 мл', b:'CHEMIPRO', a:'CH133', p:273, fit:'uni', u:'ochistitel-drosselnoy-zaslonki-aerozolnyy-chemipro-400ml-ch133-62505618', q:'очиститель дроссельной заслонки'},
+  injector:{t:'Промывка топливной системы, 0,4 л', b:'GAT EUROKAT', a:'62089', p:1326, fit:'uni', u:'promyvka-toplivnoy-sistemy-gat-eurokat-62089-benzin-04-l-28558186', q:'промывка форсунок жидкость'},
+  gtc:{t:'Главный тормозной цилиндр', fit:'car', q:'главный тормозной цилиндр'},
+  brpipe:{t:'Тормозная трубка', fit:'car', q:'трубка тормозная'},
+  rackkit:{t:'Ремкомплект рулевой рейки', fit:'car', q:'ремкомплект рулевой рейки'},
+  sealf:{t:'Сальник коленвала', fit:'car', q:'сальник коленвала'},
+  vss:{t:'Маслосъёмные колпачки', fit:'car', q:'маслосъёмные колпачки'},
+  overhaul:{t:'Комплект прокладок двигателя', fit:'car', q:'комплект прокладок двигателя'},
+  mtrep:{t:'Ремкомплект МКПП', fit:'car', q:'ремкомплект МКПП'},
+  atrep:{t:'Ремкомплект АКПП', fit:'car', q:'ремкомплект АКПП'},
+  cvtbelt:{t:'Ремень / ремкомплект вариатора', fit:'car', q:'ремень вариатора'},
+  sensor:{t:'Датчик (по VIN)', fit:'car', q:'датчик кислорода'},
+  wiring:{t:'Провод, разъём', fit:'car', q:'провод автомобильный'},
+  alarm:{t:'Сигнализация с автозапуском', fit:'car', q:'сигнализация с автозапуском'},
+  altrep:{t:'Ремкомплект генератора', fit:'car', q:'ремкомплект генератора'},
+  acfill:{t:'Фреон R134a (входит в работу)', fit:'car', q:'фреон R134a'},
+  accomp:{t:'Компрессор кондиционера', fit:'car', q:'компрессор кондиционера'},
+  acrad:{t:'Радиатор кондиционера', fit:'car', q:'радиатор кондиционера'},
+  shrusb:{t:'Пыльник ШРУСа', fit:'car', q:'пыльник ШРУСа'},
+  puncture:{t:'Материалы для ремонта шины', fit:'car', q:'жгут для ремонта шин'},
+  glass:{t:'Лобовое стекло (по VIN)', fit:'car', q:'стекло лобовое'},
+  tint:{t:'Тонировочная плёнка', fit:'car', q:'плёнка тонировочная'},
+  dentmat:{t:'Материалы для рихтовки', fit:'car', q:'материалы для рихтовки'},
+  paintmat:{t:'Краска и лак', fit:'car', q:'краска автомобильная'},
+  wash:{t:'Очиститель двигателя', fit:'car', q:'очиститель двигателя'},
+};
+
+/* какие запчасти нужны для каждой работы: [id позиции, кол-во] */
+const WORK_PARTS = {
+  'oil':[['oil4',1],['oilf',1]],
+  'to-full':[['oil4',1],['oilf',1],['airf',1],['cabf',1]],
+  'airf':[['airf',1]],
+  'cabf':[['cabf',1]],
+  'fuelf':[['fuelf',1]],
+  'fuelf-t':[['fuelf',1]],
+  'sparks':[['spark',4]],
+  'coolant':[['coolant',1]],
+  'brfluid':[['brfluid',1]],
+  'psfluid':[['psfluid',1]],
+  'atf-part':[['atf',1]],
+  'atf-full':[['atf',2]],
+  'cvtf':[['atf',1]],
+  'mtf':[['mtf',1]],
+  'difff':[['gearoil',2]],
+  'timing':[['timing',1]],
+  'chain':[['chain',1]],
+  'belt':[['belt',1]],
+  'pads-f':[['padsf',1]],
+  'pads-rd':[['padsrd',1]],
+  'pads-rb':[['padsrb',1]],
+  'discs-f':[['discsf',2]],
+  'discs-r':[['discsr',2]],
+  'cal-serv':[['calserv',1]],
+  'cal-rep':[['caliper',1]],
+  'hose':[['hose',1]],
+  'gtc':[['gtc',1]],
+  'booster':[['booster',1]],
+  'hand-cab':[['handcab',1]],
+  'bleed':[['brfluid',1]],
+  'brpipe':[['brpipe',1]],
+  'shock':[['shock',1]],
+  'spring':[['spring',1]],
+  'ball':[['ball',1]],
+  'lever':[['lever',1]],
+  'silent':[['silent',1]],
+  'stab':[['stab',1]],
+  'hub':[['hub',1]],
+  'tie':[['tie',1]],
+  'rack-rep':[['rackkit',1]],
+  'rack-new':[['rack',1]],
+  'mount':[['mount',1]],
+  'vcg':[['vcg',1]],
+  'seal-f':[['sealf',1]],
+  'pump':[['pump',1],['coolant',1]],
+  'thermo':[['thermo',1],['coolant',1]],
+  'radiator':[['radiator',1],['coolant',1]],
+  'alt':[['alt',1]],
+  'starter':[['starter',1]],
+  'coil':[['coil',1]],
+  'injector':[['injector',1]],
+  'throttle':[['throttle',1]],
+  'hcg':[['hcg',1],['coolant',1]],
+  'vss':[['vss',1]],
+  'overhaul':[['overhaul',1]],
+  'clutch':[['clutch',1]],
+  'shrus':[['shrus',1]],
+  'shrus-b':[['shrusb',1]],
+  'drive':[['drive',1]],
+  'gb-seal':[['gbseal',1]],
+  'mt-rep':[['mtrep',1]],
+  'at-rep':[['atrep',1],['atf',2]],
+  'cvt-rep':[['cvtbelt',1],['atf',2]],
+  'sensor':[['sensor',1]],
+  'wiring':[['wiring',1]],
+  'alarm':[['alarm',1]],
+  'lamp':[['lamp',1]],
+  'alt-rep':[['altrep',1]],
+  'ac-fill':[['acfill',1]],
+  'ac-clean':[['acclean',1]],
+  'ac-comp':[['accomp',1]],
+  'ac-rad':[['acrad',1]],
+  'puncture':[['puncture',1]],
+  'glass':[['glass',1]],
+  'polish':[['polish',1]],
+  'hl-pol':[['polish',1]],
+  'tint':[['tint',1]],
+  'dent':[['dentmat',1]],
+  'paint':[['paintmat',1]],
+  'engine-wash':[['wash',1]],
+};
+
+/* =========================================================
+   СОСТОЯНИЕ
+   ========================================================= */
+const state = {
+  brand:'lada', body:'sedan', year:'y16', trans:'at',
+  works:{}, parts:true, urgent:false, tab:'all', step:1
+};
+
+const $ = s => document.querySelector(s);
+const fmt = n => Math.round(n).toLocaleString('ru-RU').replace(/\u00A0/g,' ') + ' ₽';
+const round10 = n => Math.round(n/10)*10;
+const round100 = n => Math.round(n/100)*100;
+
+function brand(){ return BRANDS.find(b=>b.id===state.brand) || BRANDS[BRANDS.length-1]; }
+function body(){ return BODIES.find(b=>b.id===state.body); }
+function year(){ return YEARS.find(y=>y.id===state.year); }
+
+/* коэффициент на работы: марка × кузов × год (смягчённый) */
+function workCoef(){
+  const raw = brand().w * body().w * year().w;
+  return Math.min(1.95, Math.max(0.75, 1 + (raw - 1) * 0.9));
+}
+/* ---------- Армтек ---------- */
+function armtekSearch(q){
+  return ARMTEK_BASE + '/search?text=' + encodeURIComponent(q);
+}
+function partUrl(P){
+  if(P.u) return ARMTEK_BASE + '/product/' + P.u;
+  const q = P.q + (P.fit==='car' && brand().id!=='other' ? ' ' + brand().name : '');
+  return armtekSearch(q);
+}
+const VIN_URL = 'https://parts.armtek.ru/';
+/* какие позиции нужны для работы */
+function workParts(w){
+  return (WORK_PARTS[w.id]||[])
+    .map(([pid,pq])=>({id:pid, P:PARTS[pid], qty:pq}))
+    .filter(x=>x.P);
+}
+function workPartsSum(w){
+  return workParts(w).reduce((s,x)=>s + (x.P.p ? x.P.p*x.qty : 0), 0);
+}
+function workPartsQty(w){
+  return workParts(w).length;
+}
+function availWork(w){
+  if(!w.a) return true;
+  return w.a.includes(state.trans);
+}
+function wPrice(w){ return round10(w.p * workCoef()); }
+
+/* =========================================================
+   РАСЧЁТ
+   ========================================================= */
+function calc(){
+  const list = [], parts = [];
+  let worksSum = 0, partsSum = 0, hours = 0;
+
+  const anyRepair = Object.keys(state.works).some(id => id !== 'susp-diag');
+
+  Object.entries(state.works).forEach(([id,qty])=>{
+    const w = WORKS.find(x=>x.id===id);
+    if(!w) return;
+    const free = !!(w.free && anyRepair);
+    let wp = free ? 0 : wPrice(w) * qty;
+    let dp = 0;
+
+    const plist = workParts(w).map(x=>{
+      const q = x.qty * qty;
+      const sum = (free || !x.P.p) ? 0 : x.P.p * q;
+      dp += sum;
+      const item = {id:x.id, P:x.P, qty:q, sum, work:w};
+      parts.push(item);
+      return item;
+    });
+
+    worksSum += wp;
+    partsSum += dp;
+    hours += w.h * qty;
+    list.push({w, qty, wp, dp, free, plist});
+  });
+
+  const urgency = state.urgent ? worksSum * 0.25 : 0;
+  const worksAfter = worksSum + urgency;
+  let rate = 0;
+  if(worksSum >= 50000) rate = 0.12;
+  else if(worksSum >= 30000) rate = 0.08;
+  else if(worksSum >= 15000) rate = 0.05;
+  const discount = worksAfter * rate;
+  const partsTotal = state.parts ? partsSum : 0;
+  const total = worksAfter - discount + partsTotal;
+
+  return {
+    list, parts, worksSum, partsSum: partsTotal, hours,
+    urgency, rate, discount, total,
+    min: total>0 ? round100(total*0.88) : 0,
+    max: total>0 ? round100(total*1.16) : 0
+  };
+}
+
+function humanTime(h){
+  if(h<=0) return '—';
+  if(h<1) return 'до 1 часа';
+  const lo = Math.max(1, Math.round(h));
+  const hi = Math.max(lo+1, Math.round(h*1.35));
+  return lo + '–' + hi + ' ч';
+}
+
+/* =========================================================
+   РЕНДЕР: шаг 1
+   ========================================================= */
+function renderBrands(){
+  $('#brands').innerHTML = BRANDS.map(b=>`
+    <button class="brand ${state.brand===b.id?'on':''}" data-brand="${b.id}">
+      <span class="av" style="background:${b.c}">${b.name.slice(0,2).toUpperCase()}</span>
+      <span>${b.name}</span>
+    </button>`).join('');
+}
+
+function renderChoices(){
+  $('#bodies').innerHTML = BODIES.map(b=>
+    `<button class="chip ${state.body===b.id?'on':''}" data-body="${b.id}">${b.name}</button>`).join('');
+  $('#years').innerHTML = YEARS.map(y=>
+    `<button class="chip ${state.year===y.id?'on':''}" data-year="${y.id}">${y.name}</button>`).join('');
+  $('#transes').innerHTML = TRANSES.map(t=>
+    `<button class="chip ${state.trans===t.id?'on':''}" data-trans="${t.id}">${t.name}</button>`).join('');
+}
+
+/* =========================================================
+   РЕНДЕР: шаг 2
+   ========================================================= */
+function renderPresets(){
+  $('#presets').innerHTML = PRESETS.map((p,i)=>
+    `<button class="preset" data-preset="${i}">${p.name}</button>`).join('');
+}
+
+function renderTabs(){
+  const counts = {};
+  Object.keys(state.works).forEach(id=>{
+    const w = WORKS.find(x=>x.id===id);
+    if(w) counts[w.cat] = (counts[w.cat]||0)+1;
+  });
+  const totalSel = Object.keys(state.works).length;
+  $('#tabs').innerHTML =
+    `<button class="tab ${state.tab==='all'?'on':''} ${totalSel?'has':''}" data-tab="all">Все работы <span class="cnt">${totalSel}</span></button>` +
+    CATS.map(c=>{
+      const n = counts[c.id]||0;
+      return `<button class="tab ${state.tab===c.id?'on':''} ${n?'has':''}" data-tab="${c.id}">${c.icon} ${c.name} <span class="cnt">${n}</span></button>`;
+    }).join('');
+}
+
+function otherRepairSelected(){
+  return Object.keys(state.works).some(id => id !== 'susp-diag');
+}
+
+function workRow(w){
+  const on = !!state.works[w.id];
+  const qty = state.works[w.id] || 1;
+  const wp = wPrice(w);
+  const dp = workPartsSum(w);
+  const isFree = !!(w.free && on && otherRepairSelected());
+  const meta = [];
+  meta.push(w.h<1 ? Math.round(w.h*60)+' мин' : w.h+' н/ч');
+  if(w.free) meta.push('<span class="tag">бесплатно при ремонте</span>');
+  if(workPartsQty(w) && !state.parts) meta.push('запчасти не в счёте');
+
+  const partsTail = on ? partsBlock(w) : '';
+
+  return `
+  <div class="w-wrap">
+    <div class="work ${on?'on':''} ${partsTail?'joined':''}" data-w="${w.id}" role="checkbox" aria-checked="${on}" tabindex="0">
+      <span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+      <div>
+        <div class="w-name">${w.name}</div>
+        <div class="w-meta">${meta.join('<span>·</span>')}</div>
+      </div>
+      <div class="w-right">
+        <div class="w-price">
+          <b${isFree ? ' style="color:#7ce0aa"' : ''}>${isFree ? 'бесплатно' : fmt(wp * (on? qty:1))}</b>
+          <s>${dp>0 ? (state.parts ? '+ запчасти ' + fmt(dp*(on?qty:1)) : 'только работа') : (workPartsQty(w) ? 'запчасти — подбор' : 'без запчастей')}</s>
+        </div>
+        ${w.qty ? `<div class="qty" data-qty="${w.id}">
+            <button data-act="dec" aria-label="меньше">−</button>
+            <span>${qty}</span>
+            <button data-act="inc" aria-label="больше">+</button>
+          </div>` : ''}
+      </div>
+    </div>
+    ${partsTail}
+  </div>`;
+}
+
+/* список запчастей под работой: реальные позиции Армтека со ссылками */
+function partsBlock(w){
+  const pl = workParts(w);
+  if(!pl.length) return '';
+  const qty = state.works[w.id] || 1;
+
+  const rows = pl.map(x=>{
+    const q = x.qty * qty;
+    const P = x.P;
+    const price = P.p ? fmt(P.p * q) + ' <i>↗</i>' : '<span class="pna">подбор ↗</span>';
+    const meta = [P.b, P.a].filter(Boolean).join(' · ') || 'по VIN / модели авто';
+    return `<a class="prow" href="${partUrl(P)}" target="_blank" rel="noopener noreferrer">
+        <span class="pnm">${P.t}${q>1?' <b>×'+q+'</b>':''}</span>
+        <span class="ppr">${price}</span>
+        <span class="pmeta">${meta}</span>
+      </a>`;
+  }).join('');
+
+  const sum = workPartsSum(w) * qty;
+  const vin = armtekSearch(pl[0].P.q + (brand().id!=='other' ? ' ' + brand().name : ''));
+
+  return `<div class="wparts">
+      <div class="wparts-h">
+        <span>Запчасти · цены Армтека${sum>0?' · '+fmt(sum):''}</span>
+        <a href="${vin}" target="_blank" rel="noopener noreferrer">подобрать по ${brand().id==='other'?'VIN':brand().name} ↗</a>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+function renderWorks(){
+  const el = $('#works');
+  const groups = state.tab==='all' ? CATS : CATS.filter(c=>c.id===state.tab);
+  let html = '';
+  groups.forEach(c=>{
+    const items = WORKS.filter(w=>w.cat===c.id && availWork(w));
+    if(!items.length) return;
+    if(state.tab==='all') html += `<div class="grp-title">${c.icon} ${c.name}</div>`;
+    html += items.map(workRow).join('');
+  });
+  el.innerHTML = html || '<div class="empty">Для выбранной КПП работ в этой категории нет</div>';
+}
+
+/* =========================================================
+   РЕНДЕР: сводка
+   ========================================================= */
+function renderSummary(){
+  const r = calc();
+  const b = brand();
+
+  $('#carLine').innerHTML = `
+    <span class="av" style="background:${b.c}">${b.name.slice(0,2).toUpperCase()}</span>
+    <div>
+      <b>${b.name}</b>
+      <small>${body().name} · ${year().name} · ${TRANSES.find(t=>t.id===state.trans).name}</small>
+    </div>`;
+
+  $('#cntPill').textContent = r.list.length + ' ' + plural(r.list.length, ['работа','работы','работ']);
+
+  // выбранные работы
+  if(!r.list.length){
+    $('#selList').innerHTML = '<div class="empty">Пока ничего не выбрано.<br>Отметьте работы на шаге 2 — цена появится здесь.</div>';
+  } else {
+    $('#selList').innerHTML = '<div class="sel">' + r.list.map(item=>`
+      <div class="sel-row">
+        <span class="nm" title="${item.w.name}">${item.w.name}${item.qty>1?' ×'+item.qty:''}</span>
+        <span class="vl">${item.free ? '0 ₽' : fmt(item.wp + item.dp)}</span>
+        <button class="rm" data-rm="${item.w.id}" title="Убрать">×</button>
+      </div>`).join('') + '</div>';
+  }
+
+  // итоги
+  let rows = '';
+  rows += `<div class="trow"><span>Работы</span><b>${fmt(r.worksSum)}</b></div>`;
+  if(state.parts && r.partsSum>0) rows += `<div class="trow"><span>Запчасти · Армтек</span><b>${fmt(r.partsSum)}</b></div>`;
+  if(r.urgency>0) rows += `<div class="trow plus"><span>Срочность +25%</span><b>+${fmt(r.urgency)}</b></div>`;
+  if(r.discount>0) rows += `<div class="trow minus"><span>Скидка за объём −${Math.round(r.rate*100)}%</span><b>−${fmt(r.discount)}</b></div>`;
+  $('#totals').innerHTML = rows;
+
+  $('#bigVal').textContent = fmt(r.total);
+  $('#rangeVal').innerHTML = r.total>0
+    ? `обычно в Волгограде: ${fmt(r.min)} — ${fmt(r.max)}`
+    : 'выберите работы';
+  $('#timeVal').innerHTML = '<svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/></svg> ' + (r.hours>0
+    ? `Работы: <b style="color:#e9f0f8">${humanTime(r.hours)}</b> · ${r.hours>5?'скорее всего на 1–2 дня':'в течение дня'}`
+    : 'Время работ: —');
+
+  $('#discLabel').textContent = r.rate>0 ? '−'+Math.round(r.rate*100)+'%' : '—';
+
+  $('#mbarVal').textContent = fmt(r.total);
+}
+
+function plural(n, forms){
+  const a = Math.abs(n)%100, b = a%10;
+  if(a>10 && a<20) return forms[2];
+  if(b>1 && b<5) return forms[1];
+  if(b===1) return forms[0];
+  return forms[2];
+}
+
+/* =========================================================
+   РЕНДЕР: смета
+   ========================================================= */
+function renderDoc(){
+  const r = calc();
+  const b = brand();
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'}) + ' ' + d.getFullYear() + '\u00A0г.';
+
+  if(!r.list.length){
+    $('#doc').innerHTML = `<div class="doc">
+      <h3>Смета пока пуста</h3>
+      <p class="doc-sub">Вернитесь к шагу 2 и отметьте нужные работы.</p>
+    </div>`;
+    return;
+  }
+
+  const rows = r.list.map(item=>`
+    <tr>
+      <td>${item.w.name}</td>
+      <td style="text-align:center;white-space:nowrap">${item.qty}</td>
+      <td style="text-align:right;white-space:nowrap">${item.free?'0 ₽':fmt(item.wp)}</td>
+    </tr>`).join('');
+
+  const partRows = r.parts.map(p=>{
+    const P_ = p.P;
+    const meta = [P_.b, P_.a].filter(Boolean).join(' · ') || 'подбор по VIN';
+    return `<tr>
+      <td><a class="dlink" href="${partUrl(P_)}" target="_blank" rel="noopener noreferrer">${P_.t} ↗</a><br><span class="dmeta">${meta}</span></td>
+      <td style="text-align:center;white-space:nowrap">${p.qty}</td>
+      <td style="text-align:right;white-space:nowrap">${P_.p ? fmt(P_.p) : '—'}</td>
+      <td style="text-align:right;white-space:nowrap">${p.sum ? fmt(p.sum) : 'подбор'}</td>
+    </tr>`;
+  }).join('');
+
+  const unpriced = r.parts.filter(p=>!p.P.p).length;
+
+  $('#doc').innerHTML = `
+  <div class="doc">
+    <h3>Смета на ремонт и обслуживание</h3>
+    <p class="doc-sub">Предварительный расчёт · ${dateStr} · Волгоград</p>
+
+    <div class="doc-grid">
+      <div class="doc-cell"><span>Автомобиль</span><b>${b.name}</b></div>
+      <div class="doc-cell"><span>Кузов</span><b>${body().name}</b></div>
+      <div class="doc-cell"><span>Год выпуска</span><b>${year().name}</b></div>
+      <div class="doc-cell"><span>КПП</span><b>${TRANSES.find(t=>t.id===state.trans).name}</b></div>
+      <div class="doc-cell"><span>Работ в смете</span><b>${r.list.length}</b></div>
+      <div class="doc-cell"><span>Время в работе</span><b>${humanTime(r.hours)}</b></div>
+    </div>
+
+    <h4 class="doc-h">Работы</h4>
+    <div class="doc-scroll"><table>
+      <thead><tr><th>Работа</th><th style="text-align:center">Кол-во</th><th>Стоимость, ₽</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+
+    ${r.parts.length ? `
+    <h4 class="doc-h">Запчасти и расходники <span class="doc-h-sub">— цены и ссылки: armtek.ru</span></h4>
+    <div class="doc-scroll"><table>
+      <thead><tr>
+        <th>Позиция</th><th style="text-align:center">Кол-во</th><th>Цена, ₽</th><th>Сумма, ₽</th>
+      </tr></thead>
+      <tbody>${partRows}</tbody>
+    </table></div>
+    <p class="doc-note">
+      Позиции и цены — с витрины <b>armtek.ru</b> (бюджетные бренды STELLOX, ZENTPARTS, AREOL, FEBEST и др.).
+      Детали, помеченные «подбор», зависят от модели и комплектации — уточняются по VIN:
+      <a href="${VIN_URL}" target="_blank" rel="noopener noreferrer">подбор в Армтеке</a>.
+      ${unpriced ? `Таких позиций: ${unpriced} — их стоимость в итог не включена.` : ''}
+      Оригинальные детали дороже в 2–4 раза.
+    </p>` : ''}
+
+    <div class="doc-totals">
+      <div class="row"><span>Работы</span><b>${fmt(r.worksSum)}</b></div>
+      ${state.parts && r.partsSum>0 ? `<div class="row"><span>Запчасти и расходники (Армтек)</span><b>${fmt(r.partsSum)}</b></div>`:''}
+      ${r.urgency>0?`<div class="row"><span>Срочный ремонт (+25%)</span><b>+${fmt(r.urgency)}</b></div>`:''}
+      ${r.discount>0?`<div class="row"><span>Скидка за объём (−${Math.round(r.rate*100)}%)</span><b>−${fmt(r.discount)}</b></div>`:''}
+    </div>
+
+    <div class="doc-total">
+      <span>Итого, ориентировочно</span>
+      <b>${fmt(r.total)}</b>
+    </div>
+    <p style="font-size:12px;color:#5c6b7a;margin-top:8px">Вероятный диапазон: ${fmt(r.min)} — ${fmt(r.max)}</p>
+
+    <p class="doc-small">
+      Стоимость работ рассчитана по средним расценкам независимых СТО Волгограда (нормо-час ≈ 1 900–3 500 ₽).
+      Цены запчастей взяты с витрины Армтека на дату расчёта и могут меняться; наличие и сроки уточняются при заказе.
+      Итоговая стоимость фиксируется после осмотра автомобиля. У официального дилера работы дороже на 40–70%.
+      Смета не является публичной офертой.
+    </p>
+  </div>`;
+}
+
+/* =========================================================
+   РЕНДЕР: шаги
+   ========================================================= */
+const STEP_NAMES = ['Авто','Работы','Опции','Смета'];
+function renderStepper(){
+  $('#stepper').innerHTML = STEP_NAMES.map((n,i)=>{
+    const num = i+1;
+    const cls = state.step===num ? 'active' : (state.step>num ? 'done' : '');
+    return `<button class="step-btn ${cls}" data-go="${num}"><span class="n">${state.step>num?'✓':num}</span><span class="t">${n}</span></button>`;
+  }).join('');
+}
+
+function go(n){
+  state.step = n;
+  document.querySelectorAll('.card[data-step]').forEach(c=>{
+    c.hidden = +c.dataset.step !== n;
+  });
+  renderStepper();
+  if(n===4) renderDoc();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateAll(){
+  renderBrands(); renderChoices(); renderTabs(); renderWorks(); renderPresets();
+  renderSummary();
+  if(state.step===4) renderDoc();
+}
+
+/* =========================================================
+   СОБЫТИЯ
+   ========================================================= */
+document.addEventListener('click', e=>{
+  const t = e.target;
+
+  // навигация
+  const goBtn = t.closest('[data-go]');
+  if(goBtn){ go(+goBtn.dataset.go); return; }
+
+  // шаг 1
+  const br = t.closest('[data-brand]');
+  if(br){ state.brand = br.dataset.brand; updateAll(); return; }
+  const bd = t.closest('[data-body]');
+  if(bd){ state.body = bd.dataset.body; updateAll(); return; }
+  const yr = t.closest('[data-year]');
+  if(yr){ state.year = yr.dataset.year; updateAll(); return; }
+  const tr = t.closest('[data-trans]');
+  if(tr){
+    state.trans = tr.dataset.trans;
+    // убираем работы, несовместимые с новой КПП
+    Object.keys(state.works).forEach(id=>{
+      const w = WORKS.find(x=>x.id===id);
+      if(w && !availWork(w)) delete state.works[id];
+    });
+    updateAll(); return;
+  }
+
+  // табы
+  const tab = t.closest('[data-tab]');
+  if(tab){ state.tab = tab.dataset.tab; renderTabs(); renderWorks(); return; }
+
+  // пресеты
+  const pre = t.closest('[data-preset]');
+  if(pre){
+    const p = PRESETS[+pre.dataset.preset];
+    const allOn = p.ids.every(id=>state.works[id]);
+    p.ids.forEach(id=>{
+      const w = WORKS.find(x=>x.id===id);
+      if(!w || !availWork(w)) return;
+      if(allOn) delete state.works[id];
+      else if(!state.works[id]) state.works[id] = 1;
+    });
+    renderTabs(); renderWorks(); renderSummary(); return;
+  }
+
+  // количество
+  const qbtn = t.closest('[data-act]');
+  if(qbtn){
+    e.preventDefault(); e.stopPropagation();
+    const wrap = qbtn.closest('[data-qty]');
+    const id = wrap.dataset.qty;
+    let v = state.works[id] || 1;
+    v = qbtn.dataset.act === 'inc' ? Math.min(8, v+1) : Math.max(1, v-1);
+    state.works[id] = v;
+    renderWorks(); renderSummary(); return;
+  }
+
+  // отметка работы
+  const wrow = t.closest('.work');
+  if(wrow){
+    const id = wrow.dataset.w;
+    if(state.works[id]) delete state.works[id];
+    else state.works[id] = 1;
+    renderTabs(); renderWorks(); renderSummary();
+    return;
+  }
+
+  // удалить из сводки
+  const rm = t.closest('[data-rm]');
+  if(rm){ delete state.works[rm.dataset.rm]; renderTabs(); renderWorks(); renderSummary(); return; }
+
+  // тумблеры
+  const sw = t.closest('[data-toggle]');
+  if(sw){
+    const key = sw.dataset.toggle;
+    state[key] = !state[key];
+    sw.classList.toggle('on', state[key]);
+    renderWorks(); renderSummary(); if(state.step===4) renderDoc();
+    return;
+  }
+
+  // печать / копирование
+  if(t.closest('#printBtn')){ window.print(); return; }
+  if(t.closest('#copyBtn')){ copyDoc(); return; }
+  if(t.closest('#resetBtn')){
+    state.works = {}; state.brand='lada'; state.body='sedan'; state.year='y16';
+    state.trans='at'; state.parts=true; state.urgent=false; state.tab='all';
+    document.querySelectorAll('.sw').forEach((s,i)=>s.classList.toggle('on', i===0));
+    updateAll(); go(1); return;
+  }
+});
+
+// клавиатура: пробел / Enter на карточке работы
+document.addEventListener('keydown', e=>{
+  if(e.key!==' ' && e.key!=='Enter') return;
+  const w = document.activeElement;
+  if(!w || !w.classList || !w.classList.contains('work')) return;
+  e.preventDefault();
+  const id = w.dataset.w;
+  if(state.works[id]) delete state.works[id];
+  else state.works[id] = 1;
+  renderTabs(); renderWorks(); renderSummary();
+});
+
+function copyDoc(){
+  const r = calc();
+  const b = brand();
+  let txt = `СМЕТА НА РЕМОНТ — ${b.name}, ${body().name}, ${year().name}, ${TRANSES.find(t=>t.id===state.trans).name}\n`;
+  txt += `Волгоград, ${new Date().toLocaleDateString('ru-RU')}\n\nРАБОТЫ:\n`;
+  r.list.forEach((i,n)=>{
+    txt += `${n+1}. ${i.w.name}${i.qty>1?' ×'+i.qty:''} — ${i.free?0:i.wp} ₽\n`;
+  });
+  txt += `\nРаботы итого: ${Math.round(r.worksSum)} ₽\n`;
+
+  if(r.parts.length){
+    txt += `\nЗАПЧАСТИ (Армтек):\n`;
+    r.parts.forEach((p,n)=>{
+      const meta = [p.P.b, p.P.a].filter(Boolean).join(' ');
+      txt += `${n+1}. ${p.P.t}${p.qty>1?' ×'+p.qty:''}${meta?' ('+meta+')':''} — ${p.P.p ? Math.round(p.sum)+' ₽' : 'подбор'} — ${partUrl(p.P)}\n`;
+    });
+    if(state.parts && r.partsSum>0) txt += `Запчасти итого: ${Math.round(r.partsSum)} ₽\n`;
+  }
+
+  if(r.urgency) txt += `\nСрочность +25%: ${Math.round(r.urgency)} ₽`;
+  if(r.discount) txt += `\nСкидка −${Math.round(r.rate*100)}%: −${Math.round(r.discount)} ₽`;
+  txt += `\n\nИТОГО: ~${Math.round(r.total)} ₽ (обычно ${Math.round(r.min)}–${Math.round(r.max)} ₽)`;
+  txt += `\nВремя работ: ${humanTime(r.hours)}\nПодбор деталей по VIN: ${VIN_URL}\n`;
+  txt += `\nРаботы — средние цены СТО Волгограда, запчасти — витрина armtek.ru. Не оферта.`;
+
+  const done = ()=>{ const btn=$('#copyBtn'); const old=btn.textContent; btn.textContent='✓ Скопировано'; setTimeout(()=>btn.textContent=old,1600); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt,done));
+  } else fallbackCopy(txt,done);
+}
+
+function fallbackCopy(txt, cb){
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); cb(); }catch(e){ alert(txt); }
+  document.body.removeChild(ta);
+}
+
+/* старт */
+updateAll();
+go(1);
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5f1cc145f76d595',t:'MTc5NTQ1MzkyOQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5f1cc145f76d595',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
